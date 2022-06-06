@@ -71,8 +71,8 @@ params:
 
     # home-info mode
     homeInfoParams:
-        Title: "Hopefully helpful guides"
-        #Content: Welcome to my blog
+        Title:
+        Content:
 #
 #    #socialIcons:
 #    #    - name: twitter
