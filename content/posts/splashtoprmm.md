@@ -1,6 +1,6 @@
 ---
 title: "Run Splashtop for RMM on Linux"
-date: 2022-01-05T05:55:08-07:00
+date: 2023-04-012T05:55:08-07:00
 draft: false
 tags: ["linux","wine","RMM"]
 categories: ["Wine Guides"]
@@ -9,7 +9,7 @@ showToc: true
 TocOpen: false
 hidemeta: false
 comments: false
-description: "Tested on: Wine 6.14 staging | Wine-6.0.1 stable | Wine Staging 7.0-rc4"
+description: "Tested on: Wine 6.14 staging | Wine-6.0.1 stable | Wine Staging 7.0 | Wine Staging 8.5"
 canonicalURL: "https://tannerte.ch/blog/splashtop"
 disableShare: true
 searchHidden: false
@@ -21,6 +21,8 @@ ShowPostNavLinks: true
 ## Install Splashtop
 
 Grab your Splashtop installer and click it to run it. Nothing will appear but it will install.  
+
+Run `winetricks vcrun2015` to install a required redistributable.
 
 
 ## Test Splashtop
@@ -44,7 +46,7 @@ You should connect to the machine.
 
 
 ## Create XDG association 
-### The following instructions have only been tested on Ubuntu
+### The following instructions have only been tested on Ubuntu & Fedora
 
 Create `~/.local/share/applications/st-rmm.desktop` with this content, replacing `username` on the Exec= line with your username:
 
