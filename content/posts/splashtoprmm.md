@@ -1,15 +1,15 @@
 ---
 title: "Run Splashtop for RMM on Linux"
-date: 2023-04-012T05:55:08-07:00
+date: 2023-04-12
 draft: false
-tags: ["linux","wine","RMM"]
+tags: ["linux","wine","RMM", "Splashtop", "SyncroMSP", "SuperOps"]
 categories: ["Wine Guides"]
 author: "Tanner Anderson"
-showToc: true
+showToc: false
 TocOpen: false
 hidemeta: false
 comments: false
-description: "Tested on: Wine 6.14 staging | Wine-6.0.1 stable | Wine Staging 7.0 | Wine Staging 8.5"
+description: "Tested on: Wine Staging 7.0 | Wine Staging 8.5 with SyncroMSP and SuperOps"
 canonicalURL: "https://tannerte.ch/blog/splashtop"
 disableShare: true
 searchHidden: false
