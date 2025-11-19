@@ -1,0 +1,23 @@
+#!/sbin/openrc-run
+
+name="Pelican Queue Worker"
+description="Pelican Queue Service"
+
+command="/usr/bin/php"
+command_args="/var/www/pelican/artisan queue:work --tries=3"
+command_user="nginx:nginx"
+command_background=true
+pidfile="/run/${RC_SVCNAME}.pid"
+
+# Add respawn behavior to approximate systemd's Restart=always
+respawn=5
+respawn_max=0  # 0 = unlimited restarts
+
+depend() {
+    need net
+    after nginx
+}
+
+stop_post() {
+    rm -f "$pidfile"
+}
