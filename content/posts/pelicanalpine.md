@@ -1,8 +1,8 @@
 ---
 title: "Install Pelican Panel on Alpine Linux"
 date: 2025-11-19
-draft: true
-tags: ["linux","alpine linux","game servers", "pelican", "nginx", "Proxmox LXC", "Proxmox", "Container"]
+draft: false
+tags: ["linux", "alpine-linux", "game-servers", "pelican", "nginx", "proxmox-lxc", "proxmox", "containers"]
 categories: ["Linux Guides"]
 author: "Tanner Anderson"
 showToc: false
@@ -17,90 +17,168 @@ ShowReadingTime: true
 ShowBreadCrumbs: true
 ShowPostNavLinks: true
 ---
+## 1. Install PHP, Nginx, MariaDB, and Dependencies
 
-## TODO: Formatting
+Update packages:
 
-Install PHP, Nginx, MariaDB, and dependencies:
-
-`apk update`
-
-```apk add php83 php83-gd php83-mbstring php83-bcmath php83-xml php83-curl php83-zip php83-intl php83-fpm php83-fileinfo php83-dom php83-tokenizer php83-session php83-sodium php83-pdo php83-simplexml php83-pdo_sqlite php83-xmlreader nginx curl tar unzip composer mariadb mariadb-client```
-
-Follow official guide from https://pelican.dev/docs/panel/getting-started/#create-directories--downloading-files
-
-Dont run the composer install, just run the command at the bottom of the page:
-`COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader`
-
-Remove the default NGINX configuration:
-`rm /etc/nginx/http.d/default.conf`
-
-Grab the nginx config from https://pelican.dev/docs/panel/webserver-config/ ensuring you adjust the highlighted lines and place it at:
-`/etc/nginx/http.d/pelican.conf`
-
-Comment or remove the following lines from `/etc/nginx/http.d/pelican.conf`:
-```
-1 server_tokens off;
-
-[...]
-
-27 ssl_session_cache shared:SSL:10m;
-
-[...]
-
-47 fastcgi_pass unix:/run/php-fpm83/php8.3-fpm.sock;
+```sh
+apk update
 ```
 
-Adjust /etc/php83/php-fpm.d/www.conf to replace:
+Install required packages:
+
+```sh
+apk add php83 php83-gd php83-mbstring php83-bcmath php83-xml php83-curl php83-zip \
+  php83-intl php83-fpm php83-fileinfo php83-dom php83-tokenizer php83-session \
+  php83-sodium php83-pdo php83-simplexml php83-pdo_sqlite php83-xmlreader \
+  nginx curl tar unzip composer mariadb mariadb-client
 ```
-28 user = nginx
-29 group = nginx
 
-41 listen = /run/php-fpm83/php8.3-fpm.sock
+Follow the official guide:
+https://pelican.dev/docs/panel/getting-started/#create-directories--downloading-files
 
-53 listen.owner = nginx
+**Do not run** the default composer install command. Instead run:
+
+```sh
+COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
 ```
-Proceed to https://pelican.dev/docs/panel/panel-setup/ ensure you replace any instance of www-data with nginx
 
-### Database Setup
+---
 
-Run /etc/init.d/mariadb setup
+## 2. Configure Nginx
 
-Comment line 10 of /etc/my.cnf.d/mariadb-server.cnf (skip-networking)
+Remove the default Nginx configuration:
 
-Enable (at boot) and start the services we installed:
+```sh
+rm /etc/nginx/http.d/default.conf
+```
+
+Download and adjust the official Pelican Nginx config:
+https://pelican.dev/docs/panel/webserver-config/
+
+Save it to:
 
 ```
+/etc/nginx/http.d/pelican.conf
+```
+
+Comment or remove the following lines in `pelican.conf`:
+
+```nginx
+1 | server_tokens off;
+...
+27| ssl_session_cache shared:SSL:10m;
+```
+
+Replace the unix: socket on line 47 with:
+```nginx
+47| fastcgi_pass unix:/run/php-fpm83/php8.3-fpm.sock;
+```
+
+---
+
+## 3. Configure PHP-FPM
+
+Edit `/etc/php83/php-fpm.d/www.conf` and adjust:
+
+```ini
+28| user = nginx
+29| group = nginx
+...
+41| listen = /run/php-fpm83/php8.3-fpm.sock
+...
+53| listen.owner = nginx
+```
+
+Follow the panel setup guide:
+https://pelican.dev/docs/panel/panel-setup/
+
+Replace **all** instances of `www-data` with `nginx`.
+
+---
+
+## 4. Database Setup
+
+Initialize MariaDB:
+
+```sh
+/etc/init.d/mariadb setup
+```
+
+Comment out line 10 in:
+```
+/etc/my.cnf.d/mariadb-server.cnf
+```
+Specifically:
+```
+skip-networking
+```
+
+Enable and start services:
+
+```sh
 rc-update add nginx
 rc-update add php-fpm83
 rc-update add mariadb
+
 rc-service php-fpm83 start
 rc-service nginx start
 rc-service mariadb start
 ```
-There should be no errors at this stage.
-Follow the official guide: https://pelican.dev/docs/panel/advanced/mysql/
 
-Run the web installer at: https://yourdomain/installer
-| Driver | Selection |
-|--|--|
-| Database | MariaDB |
-| Cache | Filesystem |
+There should be **no errors** at this point.
 
-### Queue driver
-Paste the top command provided by the installer but do not paste the bottom one. As always ensuring you change any occurance of www-data to nginx.
+Follow the MySQL guide:
+https://pelican.dev/docs/panel/advanced/mysql/
 
-Create the file /etc/init.d/pelican-queue copying the one at this link: https://tannerte.ch/scripts/pelican-queue
+---
 
-Make it executable, autostart, and run now:
+## 5. Web Installer
+
+Open the installer:
 ```
+https://yourdomain/installer
+```
+
+| Driver   | Selection   |
+|----------|-------------|
+| Database | MariaDB     |
+| Cache    | Filesystem  |
+
+### Queue Driver
+Copy the **top** command provided by the installer (not the bottom one). Again, replace any `www-data` occurrences with `nginx`.
+
+Create the queue service file:
+```
+/etc/init.d/pelican-queue
+```
+Using the version from:
+https://tannerte.ch/scripts/pelican-queue
+
+Make executable and enable on boot:
+
+```bash
 chmod +x /etc/init.d/pelican-queue
 rc-update add pelican-queue
 rc-service pelican-queue start
 ```
 
-For Session Driver pick between Filesystem and Database. Most likely you will want to go with Filesystem.
+### Session Driver
+Choose between **Filesystem** and **Database**.
 
-In future when you want to update the panel just follow the official guide: https://pelican.dev/docs/panel/update/ again replacing www-data with nginx when prompted.
+I suggest **Filesystem**.
+
+---
+
+## 6. Updating the Panel
+
+For upgrades, follow:
+https://pelican.dev/docs/panel/update/
+
+Replace any reference to `www-data` with `nginx`.
+
+---
 
 ## Finished!
-Now proceed to adding your nodes. If you'd like to run your nodes on alpine as well check out my guide here: (TBA)
+You can now proceed to add your nodes. If there are any issues please submit an issue [here](https://github.com/tannertechnology/blog)
+
