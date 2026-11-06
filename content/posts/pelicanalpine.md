@@ -31,19 +31,11 @@ Install required packages:
 apk add php85 php85-gd php85-mbstring php85-bcmath php85-xml php85-curl php85-zip \
   php85-intl php85-fpm php85-fileinfo php85-dom php85-tokenizer php85-session \
   php85-sodium php85-pdo php85-simplexml php85-pdo_sqlite php85-xmlreader \
-  nginx curl tar unzip composer mariadb mariadb-client
+  php85-sqlite3 php85-pdo_mysql nginx curl tar unzip composer mariadb mariadb-client
 ```
 
-Follow the official guide:
+Follow the official guide until you get to Webserver configuration:
 https://pelican.dev/docs/panel/getting-started/#create-directories--downloading-files
-
-**Do not run** the default composer install command. Instead run:
-
-```sh
-COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
-```
-
----
 
 ## 2. Configure Nginx
 
@@ -90,6 +82,15 @@ Edit `/etc/php85/php-fpm.d/www.conf` and adjust:
 53| listen.owner = nginx
 ```
 
+
+Enable and start the web server and php:
+```
+rc-update add nginx
+rc-update add php-fpm85
+rc-service php-fpm85 start
+rc-service nginx start
+```
+
 Follow the panel setup guide:
 https://pelican.dev/docs/panel/panel-setup/
 
@@ -102,7 +103,7 @@ Replace **all** instances of `www-data` with `nginx`.
 Initialize MariaDB:
 
 ```sh
-/etc/init.d/mariadb setup
+mariadb-install-db
 ```
 
 Comment out line 10 in:
@@ -114,22 +115,17 @@ Specifically:
 skip-networking
 ```
 
-Enable and start services:
+Enable and start the database:
 
 ```sh
-rc-update add nginx
-rc-update add php-fpm85
 rc-update add mariadb
-
-rc-service php-fpm85 start
-rc-service nginx start
 rc-service mariadb start
 ```
 
 There should be **no errors** at this point.
 
 Follow the MySQL guide:
-https://pelican.dev/docs/panel/advanced/mysql/
+https://pelican.dev/docs/panel/advanced/mysql/#create-user--database
 
 ---
 
