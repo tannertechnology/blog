@@ -1,6 +1,6 @@
 ---
 title: "Install Pelican Panel on Alpine Linux"
-date: 2025-11-19
+date: 2026-11-5
 draft: false
 tags: ["linux", "alpine-linux", "game-servers", "pelican", "nginx", "proxmox-lxc", "proxmox", "containers"]
 categories: ["Linux Guides"]
@@ -9,7 +9,7 @@ showToc: false
 TocOpen: false
 hidemeta: false
 comments: false
-description: "Tested on Alpine 3.22.2"
+description: "Tested on Alpine 3.24.4"
 canonicalURL: "https://tannerte.ch/blog/pelicanalpine"
 disableShare: true
 searchHidden: false
@@ -28,9 +28,9 @@ apk update
 Install required packages:
 
 ```sh
-apk add php83 php83-gd php83-mbstring php83-bcmath php83-xml php83-curl php83-zip \
-  php83-intl php83-fpm php83-fileinfo php83-dom php83-tokenizer php83-session \
-  php83-sodium php83-pdo php83-simplexml php83-pdo_sqlite php83-xmlreader \
+apk add php85 php85-gd php85-mbstring php85-bcmath php85-xml php85-curl php85-zip \
+  php85-intl php85-fpm php85-fileinfo php85-dom php85-tokenizer php85-session \
+  php85-sodium php85-pdo php85-simplexml php85-pdo_sqlite php85-xmlreader \
   nginx curl tar unzip composer mariadb mariadb-client
 ```
 
@@ -72,20 +72,20 @@ Comment or remove the following lines in `pelican.conf`:
 
 Replace the unix: socket on line 47 with:
 ```nginx
-47| fastcgi_pass unix:/run/php-fpm83/php8.3-fpm.sock;
+47| fastcgi_pass unix:/run/php-fpm85/php8.5-fpm.sock;
 ```
 
 ---
 
 ## 3. Configure PHP-FPM
 
-Edit `/etc/php83/php-fpm.d/www.conf` and adjust:
+Edit `/etc/php85/php-fpm.d/www.conf` and adjust:
 
 ```ini
 28| user = nginx
 29| group = nginx
 ...
-41| listen = /run/php-fpm83/php8.3-fpm.sock
+41| listen = /run/php-fpm85/php8.5-fpm.sock
 ...
 53| listen.owner = nginx
 ```
@@ -118,10 +118,10 @@ Enable and start services:
 
 ```sh
 rc-update add nginx
-rc-update add php-fpm83
+rc-update add php-fpm85
 rc-update add mariadb
 
-rc-service php-fpm83 start
+rc-service php-fpm85 start
 rc-service nginx start
 rc-service mariadb start
 ```
