@@ -1,6 +1,6 @@
 ---
 title: "Install Pelican Panel on Alpine Linux"
-date: 2026-11-5
+date: 2026-11-05
 draft: false
 tags: ["linux", "alpine-linux", "game-servers", "pelican", "nginx", "proxmox-lxc", "proxmox", "containers"]
 categories: ["Linux Guides"]
